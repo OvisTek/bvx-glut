@@ -26,7 +26,8 @@
   },
   "homepage": "https://github.com/OvisTek/bvx-glut",
   "devDependencies": {
-    "@ovistek/bvx.ts": "^1.0.2",
+    "@ovistek/bvx.ts": "^1.1.3",
+    "fs-extra": "^10.0.0",
     "typescript": "^4.3.5"
   }
 }
