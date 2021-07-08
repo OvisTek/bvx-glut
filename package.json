@@ -1,0 +1,32 @@
+{
+  "name": "@ovistek/bvx-glut",
+  "version": "0.0.1",
+  "description": "Geometry Lookup Table (LUT) for BitVoxel Engine",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf dist node_modules package-lock.json",
+    "build-ts": "rm -rf dist && tsc --noEmitOnError",
+    "build": "npm run build-ts",
+    "clean:build": "npm run clean && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OvisTek/bvx-glut.git"
+  },
+  "keywords": [
+    "voxels",
+    "voxel",
+    "bitvoxel"
+  ],
+  "author": "OvisTek",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OvisTek/bvx-glut/issues"
+  },
+  "homepage": "https://github.com/OvisTek/bvx-glut",
+  "devDependencies": {
+    "@ovistek/bvx.ts": "^1.0.2",
+    "typescript": "^4.3.5"
+  }
+}
