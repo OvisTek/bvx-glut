@@ -70,7 +70,7 @@ export class BVXRenderableFaceGeometry {
             // offset the indices to the desired voxel position and
             // add to the total
             for (let cindex: number = 0; cindex < clength; cindex++) {
-                result[counter] = configuration[cindex] + index;
+                result[counter] = configuration[cindex] + (index * 24);
                 counter++;
             }
         }
