@@ -3,11 +3,12 @@
  * for BVX Rendering. Use the BVX Engine to process these LUT tables correctly.
  */
 
-const { VoxelFaceGeometry, VoxelChunk, VoxelIndex } = require("@ovistek/bvx.ts");
+const { VoxelFaceGeometry, VoxelChunk, VoxelIndex, BitOps } = require("@ovistek/bvx.ts");
 const fs = require("fs-extra");
 
 const VERTICES_LUT_PATH = "./src/lut/bvx-vertices.ts";
 const NORMALS_LUT_PATH = "./src/lut/bvx-normals.ts";
+const INDICES_LUT_PATH = "./src/lut/bvx-indices.ts";
 
 // total nmber of bitvoxels
 const vxSize = VoxelChunk.SIZE;
@@ -66,6 +67,7 @@ indices[VoxelFaceGeometry.Z_NEG_INDEX] = zNegi;
 
 let verticesOut = "[";
 let normalsOut = "[";
+let indicesOut = "";
 
 // loop though all bitvoxels and generate the array of vertices
 // for each bitvoxel position - this will be written to a file
@@ -97,9 +99,76 @@ for (let i = 0; i < totalCount; i++) {
     }
 }
 
+// generate indices for each bit-voxel variation. There are 64
+// variations in total
+for (let i = 0; i < 64; i++) {
+    const bvx = i;
+
+    let bvxgen = "new Int32Array([";
+
+    // generate the index to render +x
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.X_POS_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.X_POS_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    // generate the index to render -x
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.X_NEG_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.X_NEG_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    // generate the index to render +y
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.Y_POS_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.Y_POS_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    // generate the index to render -y
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.Y_NEG_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.Y_NEG_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    // generate the index to render +z
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.Z_POS_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.Z_POS_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    // generate the index to render -z
+    if (BitOps.bitAt(bvx, VoxelFaceGeometry.Z_NEG_INDEX) === 1) {
+        const windex = indices[VoxelFaceGeometry.Z_NEG_INDEX];
+
+        for (let j = 0; j < windex.length; j++) {
+            bvxgen += windex[j] + ",";
+        }
+    }
+
+    bvxgen = bvx !== 0 ? (bvxgen.slice(0, -1) + "])") : bvxgen + "])";
+
+    indicesOut += bvxgen + ",";
+}
+
 // strip last character and close the array
 verticesOut = verticesOut.slice(0, -1) + "]";
 normalsOut = normalsOut.slice(0, -1) + "]";
+indicesOut = indicesOut.slice(0, -1) + "";
 
 try {
     fs.unlinkSync(VERTICES_LUT_PATH);
@@ -111,8 +180,15 @@ try {
 }
 catch (e) { }
 
+try {
+    fs.unlinkSync(INDICES_LUT_PATH);
+}
+catch (e) { }
+
 // write out the vertices and normals LUT
 fs.ensureFileSync(VERTICES_LUT_PATH);
 fs.writeFileSync(VERTICES_LUT_PATH, "export default new Float32Array(" + verticesOut + ");");
 fs.ensureFileSync(NORMALS_LUT_PATH);
 fs.writeFileSync(NORMALS_LUT_PATH, "export default new Float32Array(" + normalsOut + ");");
+fs.ensureFileSync(INDICES_LUT_PATH);
+fs.writeFileSync(INDICES_LUT_PATH, "export default new Array<Int32Array>(" + indicesOut + ");");
