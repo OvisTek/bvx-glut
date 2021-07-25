@@ -9,6 +9,7 @@ const fs = require("fs-extra");
 const VERTICES_LUT_PATH = "./src/lut/bvx-vertices.ts";
 const NORMALS_LUT_PATH = "./src/lut/bvx-normals.ts";
 const INDICES_LUT_PATH = "./src/lut/bvx-indices.ts";
+const INDICES_FLIPPED_LUT_PATH = "./src/lut/bvx-indices-flipped.ts";
 
 // total nmber of bitvoxels
 const vxSize = VoxelChunk.SIZE;
@@ -56,14 +57,23 @@ normals[VoxelFaceGeometry.Z_POS_INDEX] = zPosn;
 normals[VoxelFaceGeometry.Z_NEG_INDEX] = zNegn;
 
 // indices for each vertex, 2 triangles per face
-const xPosi = [1, 2, 0, 1, 3, 2];//[v2, v3, v6, v7]; //[3, 6, 2, 3, 7, 6];
-const xNegi = [0, 1, 3, 0, 3, 2];//[v0, v1, v4, v5]; //[0, 1, 5, 0, 5, 4];
-const yPosi = [0, 1, 2, 2, 1, 3];//[v1, v2, v5, v6]; //[1, 2, 5, 5, 2, 6];
-const yNegi = [0, 2, 1, 1, 2, 3];//[v0, v3, v4, v7]; //[0, 4, 3, 3, 4, 7];
-const zPosi = [0, 1, 2, 0, 2, 3];//[v4, v5, v6, v7]; //[4, 5, 6, 4, 6, 7];
-const zNegi = [0, 2, 1, 0, 3, 2];//[v0, v1, v2, v3]; //[0, 2, 1, 0, 3, 2];
+const xPosi = [1, 2, 0, 1, 3, 2];
+const xNegi = [0, 1, 3, 0, 3, 2];
+const yPosi = [0, 1, 2, 2, 1, 3];
+const yNegi = [0, 2, 1, 1, 2, 3];
+const zPosi = [0, 1, 2, 0, 2, 3];
+const zNegi = [0, 2, 1, 0, 3, 2];
+
+// flipped indices
+const xPosif = [1, 0, 2, 1, 2, 3];
+const xNegif = [0, 3, 1, 0, 2, 3];
+const yPosif = [0, 2, 1, 2, 3, 1];
+const yNegif = [0, 1, 2, 1, 3, 2];
+const zPosif = [0, 2, 1, 0, 3, 2];
+const zNegif = [0, 1, 2, 0, 2, 3];
 
 const indices = [];
+const indicesf = [];
 
 indices[VoxelFaceGeometry.X_POS_INDEX] = xPosi;
 indices[VoxelFaceGeometry.X_NEG_INDEX] = xNegi;
@@ -72,9 +82,17 @@ indices[VoxelFaceGeometry.Y_NEG_INDEX] = yNegi;
 indices[VoxelFaceGeometry.Z_POS_INDEX] = zPosi;
 indices[VoxelFaceGeometry.Z_NEG_INDEX] = zNegi;
 
+indicesf[VoxelFaceGeometry.X_POS_INDEX] = xPosif;
+indicesf[VoxelFaceGeometry.X_NEG_INDEX] = xNegif;
+indicesf[VoxelFaceGeometry.Y_POS_INDEX] = yPosif;
+indicesf[VoxelFaceGeometry.Y_NEG_INDEX] = yNegif;
+indicesf[VoxelFaceGeometry.Z_POS_INDEX] = zPosif;
+indicesf[VoxelFaceGeometry.Z_NEG_INDEX] = zNegif;
+
 let verticesOut = "[";
 let normalsOut = "[";
 let indicesOut = "";
+let indicesFlippedOut = "";
 
 // loop though all bitvoxels and generate the array of vertices
 // for each bitvoxel position - this will be written to a file
@@ -120,6 +138,7 @@ for (let i = 0; i < 64; i++) {
     const bvx = i;
 
     let bvxgen = "new Int32Array([";
+    let bvxgenf = "new Int32Array([";
 
     let offset = 0;
 
@@ -129,6 +148,12 @@ for (let i = 0; i < 64; i++) {
 
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
+        }
+
+        const windexf = indicesf[VoxelFaceGeometry.X_POS_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
         }
     }
 
@@ -141,6 +166,12 @@ for (let i = 0; i < 64; i++) {
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
         }
+
+        const windexf = indicesf[VoxelFaceGeometry.X_NEG_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
+        }
     }
 
     offset += 4;
@@ -151,6 +182,12 @@ for (let i = 0; i < 64; i++) {
 
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
+        }
+
+        const windexf = indicesf[VoxelFaceGeometry.Y_POS_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
         }
     }
 
@@ -163,6 +200,12 @@ for (let i = 0; i < 64; i++) {
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
         }
+
+        const windexf = indicesf[VoxelFaceGeometry.Y_NEG_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
+        }
     }
 
     offset += 4;
@@ -173,6 +216,12 @@ for (let i = 0; i < 64; i++) {
 
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
+        }
+
+        const windexf = indicesf[VoxelFaceGeometry.Z_POS_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
         }
     }
 
@@ -185,17 +234,26 @@ for (let i = 0; i < 64; i++) {
         for (let j = 0; j < windex.length; j++) {
             bvxgen += (windex[j] + offset) + ",";
         }
+
+        const windexf = indicesf[VoxelFaceGeometry.Z_NEG_INDEX];
+
+        for (let j = 0; j < windexf.length; j++) {
+            bvxgenf += (windexf[j] + offset) + ",";
+        }
     }
 
     bvxgen = bvx !== 0 ? (bvxgen.slice(0, -1) + "])") : bvxgen + "])";
+    bvxgenf = bvx !== 0 ? (bvxgenf.slice(0, -1) + "])") : bvxgenf + "])";
 
     indicesOut += bvxgen + ",";
+    indicesFlippedOut += bvxgenf + ",";
 }
 
 // strip last character and close the array
 verticesOut = verticesOut.slice(0, -1) + "]";
 normalsOut = normalsOut.slice(0, -1) + "]";
 indicesOut = indicesOut.slice(0, -1) + "";
+indicesFlippedOut = indicesFlippedOut.slice(0, -1) + "";
 
 try {
     fs.unlinkSync(VERTICES_LUT_PATH);
@@ -212,6 +270,11 @@ try {
 }
 catch (e) { }
 
+try {
+    fs.unlinkSync(INDICES_FLIPPED_LUT_PATH);
+}
+catch (e) { }
+
 // write out the vertices and normals LUT
 fs.ensureFileSync(VERTICES_LUT_PATH);
 fs.writeFileSync(VERTICES_LUT_PATH, "export default new Float32Array(" + verticesOut + ");");
@@ -219,3 +282,5 @@ fs.ensureFileSync(NORMALS_LUT_PATH);
 fs.writeFileSync(NORMALS_LUT_PATH, "export default new Float32Array(" + normalsOut + ");");
 fs.ensureFileSync(INDICES_LUT_PATH);
 fs.writeFileSync(INDICES_LUT_PATH, "export default new Array<Int32Array>(" + indicesOut + ");");
+fs.ensureFileSync(INDICES_FLIPPED_LUT_PATH);
+fs.writeFileSync(INDICES_FLIPPED_LUT_PATH, "export default new Array<Int32Array>(" + indicesFlippedOut + ");");

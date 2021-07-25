@@ -1,6 +1,7 @@
 import vertices from "../lut/bvx-vertices";
 import normals from "../lut/bvx-normals";
 import indices from "../lut/bvx-indices";
+import indicesFlipped from "../lut/bvx-indices-flipped";
 import { VoxelFaceGeometry } from "@ovistek/bvx.ts";
 
 /**
@@ -37,7 +38,7 @@ export class BVXRenderableFaceGeometry {
      * @param optres - (optional) results buffer to use, if missing will re-create
      * @returns - Index Array to be used for Rendering
      */
-    public static getIndices(geometry: VoxelFaceGeometry, optres: Uint32Array | null = null): Uint32Array {
+    public static getIndices(geometry: VoxelFaceGeometry, flipped: boolean = false, optres: Uint32Array | null = null): Uint32Array {
         const numerOfFaces: number = geometry.popCount();
         const numberOfIndices: number = numerOfFaces * 6;
         const result = optres || new Uint32Array(numberOfIndices);
@@ -50,7 +51,7 @@ export class BVXRenderableFaceGeometry {
 
         const geometryIndices: Uint8Array = geometry.indices;
         const length: number = geometryIndices.length;
-        const renderableIndices: Array<Int32Array> = indices;
+        const renderableIndices: Array<Int32Array> = flipped ? indicesFlipped : indices;
 
         let counter = 0;
 
