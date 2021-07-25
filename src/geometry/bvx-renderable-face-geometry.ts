@@ -37,10 +37,10 @@ export class BVXRenderableFaceGeometry {
      * @param optres - (optional) results buffer to use, if missing will re-create
      * @returns - Index Array to be used for Rendering
      */
-    public static getIndices(geometry: VoxelFaceGeometry, optres: Int32Array | null = null): Int32Array {
+    public static getIndices(geometry: VoxelFaceGeometry, optres: Uint32Array | null = null): Uint32Array {
         const numerOfFaces: number = geometry.popCount();
         const numberOfIndices: number = numerOfFaces * 6;
-        const result = optres || new Int32Array(numberOfIndices);
+        const result = optres || new Uint32Array(numberOfIndices);
 
         // we must have enough room to store all our indices
         // each face has 2 triangles and each triangle has 3 indices
