@@ -26,7 +26,7 @@ const bvSize = VoxelChunk.BVX_SUBDIV;
 
 // the total number of bitvoxels in a single chunk
 const totalCount = (vxSize * vxSize * vxSize) * (bvSize * bvSize * bvSize);
-const bvxRenderSize = 1.0;
+const bvxRenderSize = 0.25;
 const bvxRenderInv = 1.0 / bvxRenderSize;
 
 // vertices that makes up a single full cube
