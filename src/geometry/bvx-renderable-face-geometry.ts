@@ -1,6 +1,5 @@
 import vertices from "../lut/bvx-vertices";
 import normals from "../lut/bvx-normals";
-import normalsFlipped from "../lut/bvx-normals-flipped";
 import indices from "../lut/bvx-indices";
 import indicesFlipped from "../lut/bvx-indices-flipped";
 import { VoxelFaceGeometry } from "@ovistek/bvx.ts";
@@ -27,16 +26,6 @@ export class BVXRenderableFaceGeometry {
      */
     public static getNormals(): Float32Array {
         return normals;
-    }
-
-    /**
-     * Returns a static normals array that represents a single chunk of
-     * 4x4x4 Voxels or 16x16x16 BitVoxels.
-     *
-     * NOTE: The returned array is a reference and should not be modified
-     */
-    public static getFlippedNormals(): Float32Array {
-        return normalsFlipped;
     }
 
     /**
