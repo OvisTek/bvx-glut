@@ -11,18 +11,30 @@ const normalize = (a) => {
     return a;
 };
 
-const generator = (path) => {
+const generator = (path, isFlipped = false) => {
     // vertices that makes up a single full cube
-    const n0 = normalize([-1, -1, -1]);
-    const n1 = normalize([-1, 1, -1]);
-    const n2 = normalize([1, 1, -1]);
-    const n3 = normalize([1, -1, -1]);
-    const n4 = normalize([-1, -1, 1]);
-    const n5 = normalize([-1, 1, 1]);
-    const n6 = normalize([1, 1, 1]);
-    const n7 = normalize([1, -1, 1]);
+    const normals = [];
 
-    const normals = [n0, n1, n2, n3, n4, n5, n6, n7];
+    if (isFlipped == false) {
+        normals[0] = normalize([-1, -1, -1]);
+        normals[1] = normalize([-1, 1, -1]);
+        normals[2] = normalize([1, 1, -1]);
+        normals[3] = normalize([1, -1, -1]);
+        normals[4] = normalize([-1, -1, 1]);
+        normals[5] = normalize([-1, 1, 1]);
+        normals[6] = normalize([1, 1, 1]);
+        normals[7] = normalize([1, -1, 1]);
+    }
+    else {
+        normals[0] = normalize([1, 1, 1]);
+        normals[1] = normalize([1, -1, 1]);
+        normals[2] = normalize([-1, -1, 1]);
+        normals[3] = normalize([-1, 1, 1]);
+        normals[4] = normalize([1, 1, -1]);
+        normals[5] = normalize([1, -1, -1]);
+        normals[6] = normalize([-1, -1, -1]);
+        normals[7] = normalize([-1, 1, -1]);
+    }
 
     // total nmber of bitvoxels
     const vxSize = VoxelChunk.SIZE;
