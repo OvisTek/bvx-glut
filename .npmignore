@@ -2,6 +2,7 @@ node_modules/
 tsconfig.json
 generate-face-lut.js
 package-lock.json
+generators/
 src/
 .github/
 .DS_Store
