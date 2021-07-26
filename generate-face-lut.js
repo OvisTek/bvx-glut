@@ -2,7 +2,6 @@
  * This independently executed script generates all required static LUT tables
  * for BVX Rendering. Use the BVX Engine to process these LUT tables correctly.
  */
-
 const { VoxelFaceGeometry, VoxelChunk, VoxelIndex, BitOps } = require("@ovistek/bvx.ts");
 const fs = require("fs-extra");
 
@@ -11,13 +10,23 @@ const NORMALS_LUT_PATH = "./src/lut/bvx-normals.ts";
 const INDICES_LUT_PATH = "./src/lut/bvx-indices.ts";
 const INDICES_FLIPPED_LUT_PATH = "./src/lut/bvx-indices-flipped.ts";
 
+const normalize = (a) => {
+    const length = Math.sqrt((a[0] * a[0]) + (a[1] * a[1]) + (a[2] * a[2]));
+
+    a[0] = a[0] / length;
+    a[1] = a[1] / length;
+    a[2] = a[2] / length;
+
+    return a;
+};
+
 // total nmber of bitvoxels
 const vxSize = VoxelChunk.SIZE;
 const bvSize = VoxelChunk.BVX_SUBDIV;
 
 // the total number of bitvoxels in a single chunk
 const totalCount = (vxSize * vxSize * vxSize) * (bvSize * bvSize * bvSize);
-const bvxRenderSize = 0.25;
+const bvxRenderSize = 1.0;
 const bvxRenderInv = 1.0 / bvxRenderSize;
 
 // vertices that makes up a single full cube
@@ -40,21 +49,23 @@ vertices[VoxelFaceGeometry.Z_POS_INDEX] = [v4, v5, v6, v7];//[v4, v5, v6, v4, v6
 vertices[VoxelFaceGeometry.Z_NEG_INDEX] = [v0, v1, v2, v3];//[v0, v2, v1, v0, v3, v2];
 
 // these are the normals for each face
-const xPosn = [1, 0, 0];
-const xNegn = [-1, 0, 0];
-const yPosn = [0, 1, 0];
-const yNegn = [0, -1, 0];
-const zPosn = [0, 0, 1];
-const zNegn = [0, 0, -1];
+const n0 = normalize([-1, -1, -1]);
+const n1 = normalize([-1, 1, -1]);
+const n2 = normalize([1, 1, -1]);
+const n3 = normalize([1, -1, -1]);
+const n4 = normalize([-1, -1, 1]);
+const n5 = normalize([-1, 1, 1]);
+const n6 = normalize([1, 1, 1]);
+const n7 = normalize([1, -1, 1]);
 
 const normals = [];
 
-normals[VoxelFaceGeometry.X_POS_INDEX] = xPosn;
-normals[VoxelFaceGeometry.X_NEG_INDEX] = xNegn;
-normals[VoxelFaceGeometry.Y_POS_INDEX] = yPosn;
-normals[VoxelFaceGeometry.Y_NEG_INDEX] = yNegn;
-normals[VoxelFaceGeometry.Z_POS_INDEX] = zPosn;
-normals[VoxelFaceGeometry.Z_NEG_INDEX] = zNegn;
+normals[VoxelFaceGeometry.X_POS_INDEX] = [n2, n3, n6, n7];
+normals[VoxelFaceGeometry.X_NEG_INDEX] = [n0, n1, n4, n5];
+normals[VoxelFaceGeometry.Y_POS_INDEX] = [n1, n2, n5, n6];
+normals[VoxelFaceGeometry.Y_NEG_INDEX] = [n0, n3, n4, n7];
+normals[VoxelFaceGeometry.Z_POS_INDEX] = [n4, n5, n6, n7];
+normals[VoxelFaceGeometry.Z_NEG_INDEX] = [n0, n1, n2, n3];
 
 // indices for each vertex, 2 triangles per face
 const xPosi = [1, 2, 0, 1, 3, 2];
@@ -113,6 +124,7 @@ for (let i = 0; i < totalCount; i++) {
         // write vertices - 4 vertices per face
         for (let j = 0; j < px.length; j++) {
             const vert = px[j];
+            const norm = nx[j];
 
             // x pos
             verticesOut += "" + ((vert[0] / bvxRenderInv) + worldX) + ",";
@@ -123,11 +135,11 @@ for (let i = 0; i < totalCount; i++) {
 
             // write the normal corresponding to this particular face
             // x pos
-            normalsOut += "" + nx[0] + ",";
+            normalsOut += "" + norm[0] + ",";
             // y pos
-            normalsOut += "" + nx[1] + ",";
+            normalsOut += "" + norm[1] + ",";
             // z pos
-            normalsOut += "" + nx[2] + ",";
+            normalsOut += "" + norm[2] + ",";
         }
     }
 }
