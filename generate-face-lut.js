@@ -2,16 +2,14 @@
  * This independently executed script generates all required static LUT tables
  * for BVX Rendering. Use the BVX Engine to process these LUT tables correctly.
  */
-const generateIndices = require("./generators/generate-indices");
-const generateNormals = require("./generators/generate-normals");
-const generateVertices = require("./generators/generate-vertices");
+const indices = require("./generators/generate-indices");
+const normals = require("./generators/generate-normals");
+const vertices = require("./generators/generate-vertices");
+const uv = require("./generators/generate-uv");
 
-const VERTICES_LUT_PATH = "./src/lut/bvx-vertices.ts";
-const NORMALS_LUT_PATH = "./src/lut/bvx-normals.ts";
-const INDICES_LUT_PATH = "./src/lut/bvx-indices.ts";
-const INDICES_FLIPPED_LUT_PATH = "./src/lut/bvx-indices-flipped.ts";
-
-generateIndices(INDICES_LUT_PATH, false);
-generateIndices(INDICES_FLIPPED_LUT_PATH, true);
-generateNormals(NORMALS_LUT_PATH, false);
-generateVertices(VERTICES_LUT_PATH);
+// run the generators and output the required files
+indices.generate("./src/lut/bvx-indices.ts", false);
+indices.generate("./src/lut/bvx-indices-flipped.ts", true);
+normals.generate("./src/lut/bvx-normals.ts");
+vertices.generate("./src/lut/bvx-vertices.ts");
+uv.generate("./src/lut/bvx-uv.ts");

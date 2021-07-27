@@ -9,7 +9,8 @@
     "build-ts": "rm -rf dist && tsc --noEmitOnError",
     "build": "npm run build-ts",
     "clean:build": "npm run clean && npm install && npm run build",
-    "generate": "node generate-face-lut.js"
+    "generate": "node generate-face-lut.js",
+    "generate:build": "npm run generate && npm run build"
   },
   "repository": {
     "type": "git",

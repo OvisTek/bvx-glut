@@ -1,41 +1,24 @@
-const { VoxelChunk } = require("@ovistek/bvx.ts");
+const { VoxelChunk, VoxelFaceGeometry } = require("@ovistek/bvx.ts");
 const fs = require("fs-extra");
+const { Vector3 } = require("three");
 
-const normalize = (a) => {
-    const length = Math.sqrt((a[0] * a[0]) + (a[1] * a[1]) + (a[2] * a[2]));
+const xPosn = new Vector3(1, 0, 0).normalize();
+const xNegn = new Vector3(-1, 0, 0).normalize();
+const yPosn = new Vector3(0, 1, 0).normalize();
+const yNegn = new Vector3(0, -1, 0).normalize();
+const zPosn = new Vector3(0, 0, 1).normalize();
+const zNegn = new Vector3(0, 0, -1).normalize();
 
-    a[0] = a[0] / length;
-    a[1] = a[1] / length;
-    a[2] = a[2] / length;
+const normals = [];
 
-    return a;
-};
+normals[VoxelFaceGeometry.X_POS_INDEX] = [xPosn, xPosn, xPosn, xPosn];
+normals[VoxelFaceGeometry.X_NEG_INDEX] = [xNegn, xNegn, xNegn, xNegn];
+normals[VoxelFaceGeometry.Y_POS_INDEX] = [yPosn, yPosn, yPosn, yPosn];
+normals[VoxelFaceGeometry.Y_NEG_INDEX] = [yNegn, yNegn, yNegn, yNegn];
+normals[VoxelFaceGeometry.Z_POS_INDEX] = [zPosn, zPosn, zPosn, zPosn];
+normals[VoxelFaceGeometry.Z_NEG_INDEX] = [zNegn, zNegn, zNegn, zNegn];
 
-const generator = (path, isFlipped = false) => {
-    // vertices that makes up a single full cube
-    const normals = [];
-
-    if (isFlipped == false) {
-        normals[0] = normalize([-1, -1, -1]);
-        normals[1] = normalize([-1, 1, -1]);
-        normals[2] = normalize([1, 1, -1]);
-        normals[3] = normalize([1, -1, -1]);
-        normals[4] = normalize([-1, -1, 1]);
-        normals[5] = normalize([-1, 1, 1]);
-        normals[6] = normalize([1, 1, 1]);
-        normals[7] = normalize([1, -1, 1]);
-    }
-    else {
-        normals[0] = normalize([1, 1, 1]);
-        normals[1] = normalize([1, -1, 1]);
-        normals[2] = normalize([-1, -1, 1]);
-        normals[3] = normalize([-1, 1, 1]);
-        normals[4] = normalize([1, 1, -1]);
-        normals[5] = normalize([1, -1, -1]);
-        normals[6] = normalize([-1, -1, -1]);
-        normals[7] = normalize([-1, 1, -1]);
-    }
-
+const generator = (path) => {
     // total nmber of bitvoxels
     const vxSize = VoxelChunk.SIZE;
     const bvSize = VoxelChunk.BVX_SUBDIV;
@@ -45,17 +28,19 @@ const generator = (path, isFlipped = false) => {
 
     let normalsOut = "[";
 
-    // loop though all bitvoxels and generate the array of vertices
-    // for each bitvoxel position - this will be written to a file
+    // loop though all bitvoxels and generate the array of normals
     for (let i = 0; i < totalCount; i++) {
-        // write the vertices for the provided cube at provided coordinate
-        for (let j = 0; j < normals.length; j++) {
-            // x pos
-            normalsOut += "" + normals[j][0] + ",";
-            // y pos
-            normalsOut += "" + normals[j][1] + ",";
-            // z pos
-            normalsOut += "" + normals[j][2] + ",";
+        for (let index = 0; index < 6; index++) {
+            const nx = normals[index];
+
+            // write normals - 4 normals per face
+            for (let j = 0; j < nx.length; j++) {
+                const norm = nx[j];
+
+                normalsOut += "" + norm.x + ",";
+                normalsOut += "" + norm.y + ",";
+                normalsOut += "" + norm.z + ",";
+            }
         }
     }
 
@@ -70,4 +55,7 @@ const generator = (path, isFlipped = false) => {
     fs.writeFileSync(path, "export default new Float32Array(" + normalsOut + ");");
 };
 
-module.exports = generator;
+module.exports = {
+    generate: generator,
+    normals: normals
+};

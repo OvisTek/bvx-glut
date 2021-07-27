@@ -2,6 +2,7 @@ import vertices from "../lut/bvx-vertices";
 import normals from "../lut/bvx-normals";
 import indices from "../lut/bvx-indices";
 import indicesFlipped from "../lut/bvx-indices-flipped";
+import uv from "../lut/bvx-uv";
 import { VoxelFaceGeometry } from "@ovistek/bvx.ts";
 
 /**
@@ -29,6 +30,19 @@ export class BVXRenderableFaceGeometry {
     }
 
     /**
+     * Returns a static UV array that represents a single chunk of
+     * 4x4x4 Voxels or 16x16x16 BitVoxels.
+     * 
+     * Each BitVoxel Face has an independent UV map attached. This map
+     * needs to be modified externally based on texture.
+     * 
+     * NOTE: The returned array is a reference and should not be modified
+     */
+    public static getUV(): Float32Array {
+        return uv;
+    }
+
+    /**
      * Provided a fully-configured and computed Voxel Geometry, generate the required indices
      * to be used for rendering purposes. These indices will refer to vertex and normal positions
      * as defined in getVertices() and getNormals().
@@ -51,7 +65,7 @@ export class BVXRenderableFaceGeometry {
 
         const geometryIndices: Uint8Array = geometry.indices;
         const length: number = geometryIndices.length;
-        const renderableIndices: Array<Int32Array> = flipped ? indicesFlipped : indices;
+        const renderableIndices: Array<Uint32Array> = flipped ? indicesFlipped : indices;
 
         let counter = 0;
 
@@ -65,13 +79,13 @@ export class BVXRenderableFaceGeometry {
 
             // otherwise, we need to add and offset indices, check which
             // voxel configuration we want to render
-            const configuration: Int32Array = renderableIndices[gi];
+            const configuration: Uint32Array = renderableIndices[gi];
             const clength: number = configuration.length;
 
             // offset the indices to the desired voxel position and
             // add to the total
             for (let cindex: number = 0; cindex < clength; cindex++) {
-                result[counter] = configuration[cindex] + (index * 8);
+                result[counter] = configuration[cindex] + (index * 24);
                 counter++;
             }
         }
